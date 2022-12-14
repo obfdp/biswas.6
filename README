@@ -1,0 +1,76 @@
+GITHUB LINK: https://github.com/obfdp/biswas.6.git
+
+In this project we will be designing and implementing a memory management module for our Operating System
+
+Simulator oss.
+In particular, we will be implementing the FIFO (clock) page replacement algorithms. When a page-fault occurs,
+it will be necessary to swap in that page. If there are no empty frames, your algorithm will select the victim frame
+based on our FIFO replacement policy. This treats the frames as one large circular queue.
+Each frame should also have an additional dirty bit, which is set on writing to the frame. This bit is necessary
+to consider dirty bit optimization when determining how much time these operations take. The dirty bit will be
+implemented as a part of the page table.
+Operating System Simulator
+This will be your main program and serve as the master process. You will start the operating system simulator (call
+the executable oss) as one main process who will fork multiple children at random times. The randomness will be
+simulated by a logical clock that will be updated by oss as well as user processes. Thus, the logical clock resides
+in shared memory. You should have two unsigned integers for the clock; one will show the time in seconds and the
+other will show the time in nanoseconds, offset from the beginning of a second.
+In the beginning, oss will allocate shared memory for system data structures, including page table. You can create
+fixed sized arrays for page tables, assuming that each process will have a requirement of less than 32K memory,
+with each page being 1K. The page table should also have a delimiter indicating its size so that your programs do
+not access memory beyond the page table limit. The page table should have all the required fields that may be
+implemented by bits or character data types.
+Assume that your system has a total memory of 256K. You will require a frame table, with any data required such
+as reference byte and dirty bit.
+
+User Processes
+Each user process generates memory references to one of its locations. When a process needs to generate an address
+to request, it simply generates a random value from 0 to the limit of the pages that process would have acces to (32).
+Now you have the page of the request, but you need the offset still. Multiply that page number by 1024 and then
+add a random offset of from 0 to 1023 to get the actual memory address requested. Note that we are only simulating
+this and actually do not have anything to read or write.
+Once this is done, you now have a memory address, but we still must determine if it is a read or write. Do this with
+randomness, but bias it towards reads. This information (the address requested and whether it is a read or write)
+should be conveyed to oss. The user process will wait on its semaphore (or message queue if implemented that
+way) that will be signaled by oss. oss checks the page reference by extracting the page number from the address,
+increments the clock as specified above, and sends a signal on the semaphore if the page is valid.
+At random times, say every 1000 ± 100 memory references, the user process will check whether it should terminate.
+If so, all its memory should be returned to oss and oss should be informed of its termination.
+The statistics of interest are:
+ Number of memory accesses per second
+ Number of page faults per memory access
+ Average memory access speed
+You should terminate after more than 100 processes have gotten into your system, or if more than 2 real life seconds
+have passed. Make sure that you have signal handling to terminate all processes, if needed. In case of abnormal
+termination, make sure to remove shared memory, queues and semaphores.
+I suggest you implement these requirements in the following order:
+Memory Management 3
+1. Get a makefile that compiles two source files, have master allocate shared memory, use it, then deallocate it.
+Make sure to check all possible error returns.
+2. Get Master to fork off and exec one child and have that child attach to shared memory and check the clock and
+verify it has correct resource limit. Then test having child and master communicate through message queues.
+Set up pcb and frame table/page tables
+3. Have child request a read/write of a memory address (just using the first scheme) and have master always
+grant it and log it.
+4. Set up more than one process going through your system, still granting all requests.
+5. Now start filling out your page table and frame table; if a frame is full, just empty it (indicating in the process
+that you took it from that it is gone) and grant the request.
+6. Implement a wait queue for I/O delay on needing to swap a process out.
+7. Do not forget that swapping out a process with a dirty bit should take more time on your device
+8. Implement the FIFO scheme
+
+How to Run the Project 
+
+To run, please type:
+
+ 1. ./oss
+
+
+Implementation
+
+The overall implementation is done but seeing segmentation fault errors sometimes. 
+Running the program multiple times is resolving the issue. 
+Tried to debug and find the root cause to fix it but due to shortage of time i couldn't resolve it. 
+This is the toughest project I worked on due to the issues I faced during implementation. I will keep investigating to fix the issue.
+
+
